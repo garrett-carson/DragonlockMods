@@ -74,12 +74,13 @@ class dlmutils:
 		maxx = 0
 		miny = 100
 		maxy = 0
-		for vert in fdg.data.vertices:
+		mesh = fdg.data
+		for vert in mesh.vertices:
 			if vert.co.z < minz:
 				minz = vert.co.z
 				maxx = vert.co.x
 				maxy = vert.co.z
-			elif vert.co.z == minz:
+			elif vert.co.z == minz or abs(vert.co.z - minz) < .1:
 				if vert.co.x > maxx:
 					maxx = vert.co.x
 				if vert.co.x < minx:
@@ -89,9 +90,29 @@ class dlmutils:
 				if vert.co.y < miny:
 					miny = vert.co.y
 		
-		scalex = 50.0/abs(minx-maxx)
-		scaley = 50.0/abs(miny-maxy)
-		scalez = 43.5/fdg.dimensions[2]
+		print('minx: %f miny: %f minz: %f' % (minx, miny, minz))
+		print('maxx: %f maxy: %f height: %f' % (maxx, maxy, fdg.dimensions[2]))
+		
+		otherx = float(abs(minx-maxx))
+		scalex = 100
+		if otherx > 50.0:
+			scalex = 50.0 / otherx
+		else:
+			scalex = otherx / 50.0
+		
+		othery = float(abs(miny-maxy))
+		scaley = 100
+		if othery > 50.0:
+			scaley = 50.0 / othery
+		else:
+			scaley = othery / 50.0
+		
+		height = fdg.dimensions[2]
+		
+		scalez = 1
+		if height > 43.5:
+			scalez = 43.5/fdg.dimensions[2]
+		
 		print('Scaling to %f, %f, %f' % (scalex, scaley, scalez))
 		
 		fdg.scale = (scalex, scaley, scalez)
